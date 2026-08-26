@@ -17,8 +17,7 @@ func NewManager() *Manager {
 func (mngr *Manager) With(middlewares ...Middleware) Middleware {
 	return func(handler http.Handler) http.Handler {
 		h := handler
-		for i := len(middlewares) - 1; i >= 0; i-- {
-			middleware := middlewares[i]
+		for _, middleware := range middlewares {
 			h = middleware(h)
 		}
 		return h

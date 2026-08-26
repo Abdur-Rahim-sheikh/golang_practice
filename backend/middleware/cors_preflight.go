@@ -1,4 +1,4 @@
-package utils
+package middleware
 
 import (
 	"net/http"
@@ -12,14 +12,14 @@ func allowCors(w http.ResponseWriter) {
 
 }
 
-func GlobalRouter(mux *http.ServeMux) http.Handler {
+func CorsPreflight(next http.Handler) http.Handler {
 	handleAllReq := func(w http.ResponseWriter, r *http.Request) {
 		allowCors(w)
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(200)
 			return
 		}
-		mux.ServeHTTP(w, r)
+		next.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(handleAllReq)
 }

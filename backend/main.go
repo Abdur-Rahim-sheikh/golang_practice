@@ -4,13 +4,13 @@ import (
 	"ecommerce/handlers"
 	"ecommerce/middleware"
 	"ecommerce/product"
-	"ecommerce/utils"
 	"fmt"
 	"net/http"
 )
 
 func main() {
 	manager := middleware.NewManager()
+	// hudai_logger := manager.With(middleware.Hudai, middleware.Logger, middleware.CorsPreflight)
 	hudai_logger := manager.With(middleware.Hudai, middleware.Logger)
 	mux := http.NewServeMux()
 
@@ -18,7 +18,7 @@ func main() {
 
 	mux.Handle("POST /api/products", hudai_logger(http.HandlerFunc(handlers.CreateProduct)))
 	mux.Handle("GET /api/products/{productId}", hudai_logger(http.HandlerFunc(handlers.GetProductById)))
-	routerHandler := utils.GlobalRouter(mux)
+	routerHandler := middleware.CorsPreflight(mux)
 	fmt.Println("Server running on :5000")
 
 	err := http.ListenAndServe(":5000", routerHandler)
