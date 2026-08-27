@@ -7,3 +7,15 @@ type Product struct {
 	Price       float64 `json:"price"`
 	ImgUrl      string  `json:"imageUrl"`
 }
+
+type ProductManager struct {
+	items []Product
+}
+
+func (m *ProductManager) Add(p Product) {
+	m.items = append(m.items, p)
+}
+
+func (m *ProductManager) Items() []Product {
+	return m.items
+}

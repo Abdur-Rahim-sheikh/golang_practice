@@ -69,10 +69,5 @@ func init() {
 		Price:       100,
 		ImgUrl:      "https://imgs.search.brave.com/lr54-BpcmvudejK69bknqjndUkfJQ0VOImgtugxbems/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bnV0cml0aW9uYWR2/YW5jZS5jb20vd3At/Y29udGVudC91cGxv/YWRzLzIwMjMvMDgv/Y3V0LXBvbWVncmFu/YXRlLXNob3dpbmct/cmVkLXNlZWRzLmpw/Zw",
 	}
-
-	product.ProductList = append(product.ProductList, prd1)
-	product.ProductList = append(product.ProductList, prd2)
-	product.ProductList = append(product.ProductList, prd3)
-	product.ProductList = append(product.ProductList, prd4)
-	product.ProductList = append(product.ProductList, prd5)
+	product.AddProducts(prd1, prd2, prd3, prd4, prd5)
 }

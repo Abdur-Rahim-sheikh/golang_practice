@@ -15,7 +15,7 @@ func GetProductById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, product := range product.ProductList {
+	for _, product := range product.GetProducts() {
 		if product.ID == id {
 			utils.SendData(w, product, 200)
 			return
