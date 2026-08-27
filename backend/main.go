@@ -1,27 +1,32 @@
 package main
 
 import (
-	"ecommerce/handlers"
-	"ecommerce/middleware"
+	"ecommerce/config"
 	"ecommerce/product"
+	"ecommerce/rest/handlers"
+	"ecommerce/rest/middlewares"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 func main() {
-	manager := middleware.NewManager()
+	conf := config.GetConfig()
+	manager := middlewares.NewManager()
 	// hudai_logger := manager.With(middleware.Hudai, middleware.Logger, middleware.CorsPreflight)
-	hudai_logger := manager.With(middleware.Hudai, middleware.Logger)
+	hudai_logger := manager.With(middlewares.Hudai, middlewares.Logger)
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /api/products", hudai_logger(http.HandlerFunc(handlers.GetProducts)))
 
 	mux.Handle("POST /api/products", hudai_logger(http.HandlerFunc(handlers.CreateProduct)))
 	mux.Handle("GET /api/products/{productId}", hudai_logger(http.HandlerFunc(handlers.GetProductById)))
-	routerHandler := middleware.CorsPreflight(mux)
-	fmt.Println("Server running on :5000")
+	routerHandler := middlewares.CorsPreflight(mux)
 
-	err := http.ListenAndServe(":5000", routerHandler)
+	addr := ":" + strconv.Itoa(conf.HttpPort)
+	fmt.Println("Server running on " + addr)
+
+	err := http.ListenAndServe(addr, routerHandler)
 
 	if err != nil {
 		fmt.Println("Error starting the server", err)
