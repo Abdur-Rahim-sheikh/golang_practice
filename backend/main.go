@@ -13,17 +13,15 @@ import (
 func main() {
 	conf := config.GetConfig()
 	manager := middlewares.NewManager()
-	// hudai_logger := manager.With(middleware.Hudai, middleware.Logger, middleware.CorsPreflight)
-	hudai_logger := manager.With(middlewares.Hudai, middlewares.Logger)
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /api/products", hudai_logger(http.HandlerFunc(handlers.GetProducts)))
+	mux.HandleFunc("GET /api/products", handlers.GetProducts)
 
-	mux.Handle("POST /api/products", hudai_logger(http.HandlerFunc(handlers.CreateProduct)))
-	mux.Handle("GET /api/products/{productId}", hudai_logger(http.HandlerFunc(handlers.GetProductById)))
-	mux.Handle("PUT /api/products/{productId}", hudai_logger(http.HandlerFunc(handlers.UpdateProduct)))
-	mux.Handle("DELETE /api/products/{productId}", hudai_logger(http.HandlerFunc(handlers.DeleteProduct)))
-	routerHandler := middlewares.CorsPreflight(mux)
+	mux.HandleFunc("POST /api/products", handlers.CreateProduct)
+	mux.HandleFunc("GET /api/products/{productId}", handlers.GetProductById)
+	mux.HandleFunc("PUT /api/products/{productId}", handlers.UpdateProduct)
+	mux.HandleFunc("DELETE /api/products/{productId}", handlers.DeleteProduct)
+	routerHandler := manager.With(middlewares.CorsPreflight, middlewares.Logger, middlewares.Hudai)(mux)
 
 	addr := ":" + strconv.Itoa(conf.HttpPort)
 	fmt.Println("Server running on " + addr)
