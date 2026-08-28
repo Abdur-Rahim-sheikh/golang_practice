@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"ecommerce/product"
+	"ecommerce/database"
 	"ecommerce/utils"
 	"net/http"
 	"strconv"
@@ -15,7 +15,7 @@ func GetProductById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := product.GetProduct(id)
+	item, err := database.GetProduct(id)
 	if err != nil {
 		http.Error(w, "Product with this product id not found", 400)
 

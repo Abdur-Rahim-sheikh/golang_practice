@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"ecommerce/product"
+	"ecommerce/database"
 	"net/http"
 	"strconv"
 )
@@ -14,7 +14,7 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = product.DeleteProduct(id)
+	err = database.DeleteProduct(id)
 	if err != nil {
 		http.Error(w, "Product with this product id not found", 400)
 

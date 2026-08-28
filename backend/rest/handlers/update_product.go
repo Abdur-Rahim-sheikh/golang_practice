@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"ecommerce/product"
+	"ecommerce/database"
 	"ecommerce/utils"
 	"encoding/json"
 	"fmt"
@@ -17,7 +17,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var newProduct product.Product
+	var newProduct database.Product
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&newProduct)
 	if err != nil {
@@ -25,7 +25,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Plz, give me valid json", 400)
 		return
 	}
-	item, err := product.UpdateProduct(id, newProduct)
+	item, err := database.UpdateProduct(id, newProduct)
 	if err != nil {
 		http.Error(w, "Product with this product id not found", 400)
 
