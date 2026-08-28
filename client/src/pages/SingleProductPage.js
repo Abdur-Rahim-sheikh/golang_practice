@@ -6,7 +6,7 @@ import '../styles/SingleProductPage.css';
 function SingleProductPage() {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
-
+  console.log(productId)
   useEffect(() => {
     fetchProduct(productId);
   }, [productId]);

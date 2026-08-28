@@ -70,7 +70,7 @@ function HomePage() {
     productData.price = parseFloat(productData.price)
     try {
       if (editingProduct) {
-        await updateProduct(editingProduct._id, productData);
+        await updateProduct(editingProduct.id, productData);
         setEditingProduct(null);
       } else {
         await createProduct(productData);

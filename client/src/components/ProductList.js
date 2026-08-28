@@ -7,7 +7,7 @@ import '../styles/ProductList.css';
 //     <div className="product-list">
 //       {products.map((product) => (
 //         <ProductCard
-//           key={product._id}
+//           key={product.id}
 //           product={product}
 //           onEdit={onEdit}
 //           onDelete={onDelete}
