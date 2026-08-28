@@ -19,4 +19,6 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Product with this product id not found", 400)
 
 	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
