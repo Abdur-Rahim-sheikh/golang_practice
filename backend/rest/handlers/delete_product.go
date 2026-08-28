@@ -2,12 +2,11 @@ package handlers
 
 import (
 	"ecommerce/product"
-	"ecommerce/utils"
 	"net/http"
 	"strconv"
 )
 
-func GetProductById(w http.ResponseWriter, r *http.Request) {
+func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	productId := r.PathValue("productId")
 	id, err := strconv.Atoi(productId)
 	if err != nil {
@@ -15,10 +14,9 @@ func GetProductById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := product.GetProduct(id)
+	err = product.DeleteProduct(id)
 	if err != nil {
 		http.Error(w, "Product with this product id not found", 400)
 
 	}
-	utils.SendData(w, item, 200)
 }

@@ -21,6 +21,8 @@ func main() {
 
 	mux.Handle("POST /api/products", hudai_logger(http.HandlerFunc(handlers.CreateProduct)))
 	mux.Handle("GET /api/products/{productId}", hudai_logger(http.HandlerFunc(handlers.GetProductById)))
+	mux.Handle("PUT /api/products/{productId}", hudai_logger(http.HandlerFunc(handlers.UpdateProduct)))
+	mux.Handle("DELETE /api/products/{productId}", hudai_logger(http.HandlerFunc(handlers.DeleteProduct)))
 	routerHandler := middlewares.CorsPreflight(mux)
 
 	addr := ":" + strconv.Itoa(conf.HttpPort)
