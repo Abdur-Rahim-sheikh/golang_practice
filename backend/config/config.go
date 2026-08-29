@@ -12,6 +12,7 @@ type Config struct {
 	Version     string
 	ServiceName string
 	HttpPort    int
+	JwtSecret   string
 }
 
 var conf Config
@@ -43,6 +44,7 @@ func LoadConfig() {
 		Version:     version,
 		ServiceName: service_name,
 		HttpPort:    int(port),
+		JwtSecret:   os.Getenv("JWT_SECRET"),
 	}
 }
 

@@ -16,17 +16,31 @@ func main() {
 	manager := middlewares.NewManager()
 	mux := http.NewServeMux()
 
+	authRequired := manager.With(middlewares.Auth)
+
 	mux.HandleFunc("GET /api/products", productHandlers.GetProducts)
-	mux.HandleFunc("POST /api/products", productHandlers.CreateProduct)
 	mux.HandleFunc("GET /api/products/{productId}", productHandlers.GetProductById)
-	mux.HandleFunc("PUT /api/products/{productId}", productHandlers.UpdateProduct)
-	mux.HandleFunc("DELETE /api/products/{productId}", productHandlers.DeleteProduct)
-
-	mux.HandleFunc("GET /api/users", handlers.GetUsers)
-	mux.HandleFunc("POST /api/users", handlers.CreateUser)
-
 	mux.HandleFunc("POST /api/login", handlers.Login)
-	routerHandler := manager.With(middlewares.CorsPreflight, middlewares.Logger, middlewares.Hudai)(mux)
+
+	mux.Handle(
+		"POST /api/products",
+		authRequired(http.HandlerFunc(productHandlers.CreateProduct)),
+	)
+
+	mux.Handle(
+		"PUT /api/products/{productId}",
+		authRequired(http.HandlerFunc(productHandlers.UpdateProduct)),
+	)
+
+	mux.Handle(
+		"DELETE /api/products/{productId}",
+		authRequired(http.HandlerFunc(productHandlers.DeleteProduct)),
+	)
+
+	routerHandler := manager.With(
+		middlewares.CorsPreflight,
+		middlewares.Logger,
+	)(mux)
 
 	addr := ":" + strconv.Itoa(conf.HttpPort)
 	fmt.Println("Server running on " + addr)
