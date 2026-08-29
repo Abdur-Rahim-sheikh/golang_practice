@@ -1,46 +1,34 @@
 package utils
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
-	"encoding/json"
+	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-type Header struct {
-	Alg string `json:"alg"`
-	Typ string `json:"typ"`
-}
-
-type Payload struct {
+type Claims struct {
 	Sub         int    `json:"sub"`
 	Email       string `json:"email"`
 	IsShopOwner bool   `json:"is_shop_owner"`
+	jwt.RegisteredClaims
 }
 
-func CreateJwt(secret string, data Payload) (string, error) {
-	header := Header{
-		Alg: "HS256",
-		Typ: "JWT",
-	}
-	byteHeader, _ := json.Marshal(header)
-	byteSecret, _ := json.Marshal(secret)
-	headerbs64 := base64UrlEncode(byteHeader)
-	dataArray, err := json.Marshal(data)
-	if err != nil {
-		return "", err
-	}
-	databs64 := base64UrlEncode(dataArray)
-	message := headerbs64 + "." + databs64
-	byteMsg := []byte(message)
-	h := hmac.New(sha256.New, byteSecret)
-	h.Write(byteMsg)
-	signature := h.Sum(nil)
-	signatureb64 := base64UrlEncode(signature)
-	jwt := headerbs64 + "." + databs64 + "." + signatureb64
-	return jwt, nil
+func CreateJwt(secret string, data Claims) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodES256, data)
+	return token.SignedString([]byte(secret))
 }
 
-func base64UrlEncode(data []byte) string {
-	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(data)
+func VerifyJwt(secret string, tokenString string) (*Claims, error) {
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		// Explicitly enforce the signing method — never trust the token's own header for this
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+	if err != nil || !token.Valid {
+		return nil, err
+	}
+	return claims, nil
 }
