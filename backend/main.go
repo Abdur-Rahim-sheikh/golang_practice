@@ -4,6 +4,7 @@ import (
 	"ecommerce/config"
 	"ecommerce/database"
 	"ecommerce/rest/handlers"
+	productHandlers "ecommerce/rest/handlers/products"
 	"ecommerce/rest/middlewares"
 	"fmt"
 	"net/http"
@@ -15,13 +16,16 @@ func main() {
 	manager := middlewares.NewManager()
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /api/products", handlers.GetProducts)
-	mux.HandleFunc("POST /api/products", handlers.CreateProduct)
-	mux.HandleFunc("GET /api/products/{productId}", handlers.GetProductById)
-	mux.HandleFunc("PUT /api/products/{productId}", handlers.UpdateProduct)
-	mux.HandleFunc("DELETE /api/products/{productId}", handlers.DeleteProduct)
+	mux.HandleFunc("GET /api/products", productHandlers.GetProducts)
+	mux.HandleFunc("POST /api/products", productHandlers.CreateProduct)
+	mux.HandleFunc("GET /api/products/{productId}", productHandlers.GetProductById)
+	mux.HandleFunc("PUT /api/products/{productId}", productHandlers.UpdateProduct)
+	mux.HandleFunc("DELETE /api/products/{productId}", productHandlers.DeleteProduct)
 
+	mux.HandleFunc("GET /api/users", handlers.GetUsers)
 	mux.HandleFunc("POST /api/users", handlers.CreateUser)
+
+	mux.HandleFunc("POST /api/login", handlers.Login)
 	routerHandler := manager.With(middlewares.CorsPreflight, middlewares.Logger, middlewares.Hudai)(mux)
 
 	addr := ":" + strconv.Itoa(conf.HttpPort)

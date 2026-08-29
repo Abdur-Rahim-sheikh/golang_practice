@@ -27,6 +27,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	passwordMatched := user.Password == reqLogin.Password
 	if err != nil || !passwordMatched {
 		http.Error(w, "user mail or password not matched", http.StatusBadRequest)
+		return
 	}
 	utils.SendData(w, user, http.StatusCreated)
 }

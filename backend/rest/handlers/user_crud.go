@@ -8,6 +8,9 @@ import (
 	"net/http"
 )
 
+func GetUsers(w http.ResponseWriter, r *http.Request) {
+	utils.SendData(w, database.GetUsers(), http.StatusOK)
+}
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// r.Body => description, imageUrl, price, title =>
 	var newUser database.User
