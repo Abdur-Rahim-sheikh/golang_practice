@@ -29,5 +29,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "user mail or password not matched", http.StatusBadRequest)
 		return
 	}
-	utils.SendData(w, user, http.StatusCreated)
+	payload := utils.Payload{Sub: user.ID, Email: user.Email, IsShopOwner: user.IsShopOwner}
+	token, err := utils.CreateJwt("my-secret", payload)
+
+	if err != nil {
+		http.Error(w, "token generation failed", http.StatusConflict)
+	}
+	utils.SendData(w, token, http.StatusCreated)
 }
