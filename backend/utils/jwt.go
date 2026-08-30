@@ -13,7 +13,7 @@ type Claims struct {
 }
 
 func CreateJwt(secret string, data Claims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, data)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, data)
 	return token.SignedString([]byte(secret))
 }
 

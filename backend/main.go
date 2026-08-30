@@ -21,7 +21,8 @@ func main() {
 	mux.HandleFunc("GET /api/products", productHandlers.GetProducts)
 	mux.HandleFunc("GET /api/products/{productId}", productHandlers.GetProductById)
 	mux.HandleFunc("POST /api/login", handlers.Login)
-
+	mux.HandleFunc("POST /api/users", handlers.AddUser)
+	// auth required
 	mux.Handle(
 		"POST /api/products",
 		authRequired(http.HandlerFunc(productHandlers.CreateProduct)),
@@ -88,5 +89,14 @@ func init() {
 		Price:       100,
 		ImgUrl:      "https://imgs.search.brave.com/lr54-BpcmvudejK69bknqjndUkfJQ0VOImgtugxbems/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bnV0cml0aW9uYWR2/YW5jZS5jb20vd3At/Y29udGVudC91cGxv/YWRzLzIwMjMvMDgv/Y3V0LXBvbWVncmFu/YXRlLXNob3dpbmct/cmVkLXNlZWRzLmpw/Zw",
 	}
+
+	default_user := database.User{
+		FirstName:   "Pansy",
+		LastName:    "Schaefer",
+		Email:       "test@gmail.com",
+		Password:    "test",
+		IsShopOwner: true,
+	}
 	database.AddProducts(prd1, prd2, prd3, prd4, prd5)
+	default_user.Add()
 }

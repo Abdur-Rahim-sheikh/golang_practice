@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"ecommerce/config"
 	"ecommerce/database"
 	"ecommerce/utils"
 	"encoding/json"
@@ -11,6 +12,11 @@ import (
 type ReqLogin struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type ResLogin struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -30,11 +36,15 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	payload := utils.Claims{Sub: user.ID, Email: user.Email, IsShopOwner: user.IsShopOwner}
-	token, err := utils.CreateJwt("my-secret", payload)
+	token, err := utils.CreateJwt(config.GetConfig().JwtSecret, payload)
 
 	if err != nil {
-		http.Error(w, "token generation failed", http.StatusConflict)
+		http.Error(w, "token generation failed "+err.Error(), http.StatusConflict)
+		return
 	}
-
-	utils.SendData(w, token, http.StatusCreated)
+	response := ResLogin{
+		AccessToken: token,
+		TokenType:   "Bearer",
+	}
+	utils.SendData(w, response, http.StatusCreated)
 }
