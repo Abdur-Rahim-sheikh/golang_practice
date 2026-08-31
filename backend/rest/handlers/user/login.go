@@ -1,4 +1,4 @@
-package handlers
+package user
 
 import (
 	"ecommerce/config"
@@ -19,7 +19,7 @@ type ResLogin struct {
 	TokenType   string `json:"token_type"`
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	var reqLogin ReqLogin
 	decoder := json.NewDecoder(r.Body)
