@@ -15,7 +15,7 @@ type Config struct {
 	JwtSecret   string
 }
 
-var conf Config
+var conf *Config
 
 func LoadConfig() {
 	err := godotenv.Load()
@@ -40,7 +40,7 @@ func LoadConfig() {
 		os.Exit(1)
 	}
 
-	conf = Config{
+	conf = &Config{
 		Version:     version,
 		ServiceName: service_name,
 		HttpPort:    int(port),
@@ -49,6 +49,8 @@ func LoadConfig() {
 }
 
 func GetConfig() *Config {
-	LoadConfig()
-	return &conf
+	if conf == nil {
+		LoadConfig()
+	}
+	return conf
 }
