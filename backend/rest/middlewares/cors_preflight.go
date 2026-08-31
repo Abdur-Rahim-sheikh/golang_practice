@@ -12,7 +12,7 @@ func allowCors(w http.ResponseWriter) {
 
 }
 
-func CorsPreflight(next http.Handler) http.Handler {
+func (m *Middlewares) CorsPreflight(next http.Handler) http.Handler {
 	handleAllReq := func(w http.ResponseWriter, r *http.Request) {
 		allowCors(w)
 		if r.Method == http.MethodOptions {

@@ -1,56 +1,13 @@
 package main
 
 import (
-	"ecommerce/config"
+	"ecommerce/cmd"
+
 	"ecommerce/database"
-	"ecommerce/rest/handlers"
-	productHandlers "ecommerce/rest/handlers/products"
-	"ecommerce/rest/middlewares"
-	"fmt"
-	"net/http"
-	"strconv"
 )
 
 func main() {
-	conf := config.GetConfig()
-	manager := middlewares.NewManager()
-	mux := http.NewServeMux()
-
-	authRequired := manager.With(middlewares.Auth)
-
-	mux.HandleFunc("GET /api/products", productHandlers.GetProducts)
-	mux.HandleFunc("GET /api/products/{productId}", productHandlers.GetProductById)
-	mux.HandleFunc("POST /api/login", handlers.Login)
-	mux.HandleFunc("POST /api/users", handlers.AddUser)
-	// auth required
-	mux.Handle(
-		"POST /api/products",
-		authRequired(http.HandlerFunc(productHandlers.CreateProduct)),
-	)
-
-	mux.Handle(
-		"PUT /api/products/{productId}",
-		authRequired(http.HandlerFunc(productHandlers.UpdateProduct)),
-	)
-
-	mux.Handle(
-		"DELETE /api/products/{productId}",
-		authRequired(http.HandlerFunc(productHandlers.DeleteProduct)),
-	)
-
-	routerHandler := manager.With(
-		middlewares.CorsPreflight,
-		middlewares.Logger,
-	)(mux)
-
-	addr := ":" + strconv.Itoa(conf.HttpPort)
-	fmt.Println("Server running on " + addr)
-
-	err := http.ListenAndServe(addr, routerHandler)
-
-	if err != nil {
-		fmt.Println("Error starting the server", err)
-	}
+	cmd.Serve()
 }
 
 func init() {

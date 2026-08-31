@@ -1,13 +1,12 @@
 package middlewares
 
 import (
-	"ecommerce/config"
 	"ecommerce/utils"
 	"net/http"
 	"strings"
 )
 
-func Auth(next http.Handler) http.Handler {
+func (m *Middlewares) Auth(next http.Handler) http.Handler {
 	temp := func(w http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get("Authorization")
 		if header == "" {
@@ -20,7 +19,7 @@ func Auth(next http.Handler) http.Handler {
 			return
 		}
 
-		_, err := utils.VerifyJwt(config.GetConfig().JwtSecret, auth_arr[1])
+		_, err := utils.VerifyJwt(m.Conf.JwtSecret, auth_arr[1])
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"ecommerce/config"
 	"ecommerce/database"
 	"ecommerce/utils"
 	"encoding/json"
@@ -36,7 +35,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	payload := utils.Claims{Sub: user.ID, Email: user.Email, IsShopOwner: user.IsShopOwner}
-	token, err := utils.CreateJwt(config.GetConfig().JwtSecret, payload)
+	token, err := utils.CreateJwt(h.middlewares.Conf.JwtSecret, payload)
 
 	if err != nil {
 		http.Error(w, "token generation failed "+err.Error(), http.StatusConflict)

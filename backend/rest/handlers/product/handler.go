@@ -1,8 +1,6 @@
-package user
+package product
 
-import (
-	"ecommerce/rest/middlewares"
-)
+import "ecommerce/rest/middlewares"
 
 type Handler struct {
 	middlewares *middlewares.Middlewares
@@ -10,5 +8,4 @@ type Handler struct {
 
 func NewHandler(middlewares *middlewares.Middlewares) *Handler {
 	return &Handler{middlewares: middlewares}
-
 }

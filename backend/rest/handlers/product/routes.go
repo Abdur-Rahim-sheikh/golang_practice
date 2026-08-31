@@ -1,4 +1,4 @@
-package products
+package product
 
 import (
 	"ecommerce/rest/middlewares"
@@ -6,7 +6,7 @@ import (
 )
 
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, manager *middlewares.Manager) {
-	authRequired := manager.With(middlewares.Auth)
+	authRequired := manager.With(h.middlewares.Auth)
 
 	mux.HandleFunc("GET /api/products", h.GetProducts)
 	mux.HandleFunc("GET /api/products/{productId}", h.GetProductById)
