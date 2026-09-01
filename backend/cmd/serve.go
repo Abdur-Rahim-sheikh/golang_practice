@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"ecommerce/config"
+	"ecommerce/repo"
 	"ecommerce/rest"
 	"ecommerce/rest/handlers/product"
 	"ecommerce/rest/handlers/user"
@@ -11,8 +12,10 @@ import (
 func Serve() {
 	conf := config.GetConfig()
 	middlewares := middlewares.NewMiddlewares(conf)
-	productHandler := product.NewHandler(middlewares)
-	userHandler := user.NewHandler(middlewares)
+	productRepo := repo.NewProductRepo()
+	userRepo := repo.NewUserRepo()
+	productHandler := product.NewHandler(middlewares, productRepo)
+	userHandler := user.NewHandler(middlewares, userRepo)
 	server := rest.NewServer(productHandler, userHandler)
 	server.Start(conf)
 }

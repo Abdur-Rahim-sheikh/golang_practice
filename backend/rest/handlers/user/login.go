@@ -1,7 +1,6 @@
 package user
 
 import (
-	"ecommerce/database"
 	"ecommerce/utils"
 	"encoding/json"
 	"fmt"
@@ -28,7 +27,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Plz, give me valid data", http.StatusBadRequest)
 		return
 	}
-	user, err := database.GetUserByMail(reqLogin.Email)
+	user, err := h.userRepo.GetByMail(reqLogin.Email)
 	passwordMatched := user.Password == reqLogin.Password
 	if err != nil || !passwordMatched {
 		http.Error(w, "user mail or password not matched", http.StatusBadRequest)
@@ -45,5 +44,5 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		AccessToken: token,
 		TokenType:   "Bearer",
 	}
-	utils.SendData(w, response, http.StatusCreated)
+	utils.SendData(w, http.StatusCreated, response)
 }

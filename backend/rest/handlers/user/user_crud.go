@@ -1,7 +1,7 @@
 package user
 
 import (
-	"ecommerce/database"
+	"ecommerce/repo"
 	"ecommerce/utils"
 	"encoding/json"
 	"fmt"
@@ -9,11 +9,11 @@ import (
 )
 
 func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
-	utils.SendData(w, database.GetUsers(), http.StatusOK)
+	utils.SendData(w, http.StatusOK,  h.userRepo.List())
 }
-func (H *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 	// r.Body => description, imageUrl, price, title =>
-	var newUser database.User
+	var newUser repo.User
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newUser)
 	if err != nil {
@@ -21,6 +21,6 @@ func (H *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Plz, give me valid json", http.StatusBadRequest)
 		return
 	}
-	created_user := newUser.Add()
-	utils.SendData(w, created_user, http.StatusCreated)
+	created_user,err := h.userRepo.Add(newUser)
+	utils.SendData(w, http.StatusCreated, created_user)
 }
