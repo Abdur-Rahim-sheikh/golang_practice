@@ -1,13 +1,32 @@
 package main
 
 import (
-	"ecommerce/cmd"
+	// "ecommerce/cmd"
 
 	"ecommerce/database"
+	"fmt"
 )
 
+type People interface {
+	Details()
+}
+type user struct {
+	Name  string
+	Age   int
+	Money float64
+}
+
+func (u user) Details() {
+	fmt.Println(u.Name, "Shaua")
+}
+func (u user) RichMoney() {
+	fmt.Println()
+}
 func main() {
-	cmd.Serve()
+	// cmd.Serve()
+	var x People
+	x = user{}
+	fmt.Println(x)
 }
 
 func init() {
