@@ -8,7 +8,12 @@ import (
 	"net/http"
 	"strconv"
 )
-
+type RequestProduct struct {
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	ImageUrl    string  `json:"imageUrl"`
+	Price       float64 `json:"price"`
+}
 func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	utils.SendData(w,http.StatusOK, h.productRepo.List())
 }
@@ -16,7 +21,7 @@ func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	// r.Body => description, imageUrl, price, title =>
 
-	var newProduct repo.Product
+	var newProduct RequestProduct
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newProduct)
 	if err != nil {
@@ -24,8 +29,14 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Plz, give me valid json", 400)
 		return
 	}
-	newProduct.ID = len(h.productRepo.List()) + 1
-	h.productRepo.Add(newProduct)
+	
+	h.productRepo.Add(repo.Product{
+		ID: len(h.productRepo.List())+1,
+		Title: newProduct.Title,
+		Description: newProduct.Description,
+		ImgUrl: newProduct.ImageUrl,
+		Price: newProduct.Price,
+	})
 	utils.SendData(w, http.StatusAccepted, h.productRepo.List())
 }
 
@@ -63,22 +74,28 @@ func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
-	// productId := r.PathValue("productId")
-	// id, err := strconv.Atoi(productId)
-	// if err != nil {
-	// 	http.Error(w, "Please give me a valid product id", 400)
-	// 	return
-	// }
+	productId := r.PathValue("productId")
+	id, err := strconv.Atoi(productId)
+	if err != nil {
+		http.Error(w, "Please give me a valid product id", 400)
+		return
+	}
 
-	var newProduct repo.Product
+	var newProduct RequestProduct
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newProduct)
+	err = decoder.Decode(&newProduct)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Plz, give me valid json", 400)
 		return
 	}
-	item, err := h.productRepo.Update(newProduct)
+	item, err := h.productRepo.Update(repo.Product{
+		ID: id,
+		Title: newProduct.Title,
+		Description: newProduct.Description,
+		ImgUrl: newProduct.ImageUrl,
+		Price: newProduct.Price,
+	})
 	if err != nil {
 		http.Error(w, "Product with this product id not found", 400)
 
