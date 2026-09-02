@@ -13,6 +13,12 @@ type Config struct {
 	ServiceName string
 	HttpPort    int
 	JwtSecret   string
+	// db info
+	UserName string
+	Password string
+	Host     string
+	Port     int
+	DbName   string			
 }
 
 var conf *Config

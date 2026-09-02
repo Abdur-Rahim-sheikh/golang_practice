@@ -7,10 +7,16 @@ import (
 	"ecommerce/rest/handlers/product"
 	"ecommerce/rest/handlers/user"
 	"ecommerce/rest/middlewares"
+	"ecommerce/infra/db"
 )
 
 func Serve() {
 	conf := config.GetConfig()
+	db, err := db.NewConnection(*conf)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 	middlewares := middlewares.NewMiddlewares(conf)
 	productRepo := repo.NewProductRepo()
 	userRepo := repo.NewUserRepo()
