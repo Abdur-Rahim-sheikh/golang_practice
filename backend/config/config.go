@@ -18,17 +18,16 @@ type Config struct {
 	Password string
 	Host     string
 	Port     int
-	DbName   string			
+	DbName   string
 }
 
 var conf *Config
 
 func LoadConfig() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("failed to load the .env file", err)
-		os.Exit(1)
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("no .env file found, relying on environment variables")
 	}
+
 	version := os.Getenv("VERSION")
 	if version == "" {
 		fmt.Println("Version is required")
