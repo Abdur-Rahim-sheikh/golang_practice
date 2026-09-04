@@ -1,6 +1,9 @@
 package repo
 
-import ("fmt")
+import (
+	"fmt"
+)
+
 type Product struct {
 	ID          int     `json:"id"`
 	Title       string  `json:"title"`
@@ -8,7 +11,7 @@ type Product struct {
 	Price       float64 `json:"price"`
 	ImgUrl      string  `json:"imageUrl"`
 }
-type ProductRepo interface{
+type ProductRepo interface {
 	Add(product Product) (*Product, error)
 	Get(id int) *Product
 	List() []*Product
@@ -16,23 +19,23 @@ type ProductRepo interface{
 	Update(product Product) (*Product, error)
 }
 
-type productRepo struct{
+type productRepo struct {
 	items []*Product
 }
 
-func NewProductRepo() ProductRepo{
+func NewProductRepo() ProductRepo {
 	repo := &productRepo{}
 	generateDefaultProducts(repo)
 	return repo
 }
 
-func (self productRepo) Add(product Product)(*Product, error){
-	product.ID = len(self.items)+1
+func (self *productRepo) Add(product Product) (*Product, error) {
+	product.ID = len(self.items) + 1
 	self.items = append(self.items, &product)
 	return &product, nil
 }
-func (self productRepo) Get(id int)*Product{
-		for idx := range self.items {
+func (self *productRepo) Get(id int) *Product {
+	for idx := range self.items {
 		if self.items[idx].ID == id {
 			return self.items[idx]
 		}
@@ -40,10 +43,10 @@ func (self productRepo) Get(id int)*Product{
 	return nil
 
 }
-func (self productRepo) List()[]*Product{
+func (self *productRepo) List() []*Product {
 	return self.items
 }
-func (self productRepo) Delete(id int)error{
+func (self *productRepo) Delete(id int) error {
 	for idx := range self.items {
 		if self.items[idx].ID == id {
 			lastIdx := len(self.items) - 1
@@ -55,7 +58,7 @@ func (self productRepo) Delete(id int)error{
 	return fmt.Errorf("product with id %d not found", id)
 
 }
-func (self productRepo) Update(product Product)(*Product, error){
+func (self *productRepo) Update(product Product) (*Product, error) {
 	for idx := range self.items {
 		if self.items[idx].ID == product.ID {
 			self.items[idx] = &product
@@ -65,8 +68,6 @@ func (self productRepo) Update(product Product)(*Product, error){
 	return nil, fmt.Errorf("product with id %d not found", product.ID)
 
 }
-
-
 
 func generateDefaultProducts(pr *productRepo) {
 	prd1 := Product{
@@ -105,7 +106,6 @@ func generateDefaultProducts(pr *productRepo) {
 		ImgUrl:      "https://imgs.search.brave.com/lr54-BpcmvudejK69bknqjndUkfJQ0VOImgtugxbems/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bnV0cml0aW9uYWR2/YW5jZS5jb20vd3At/Y29udGVudC91cGxv/YWRzLzIwMjMvMDgv/Y3V0LXBvbWVncmFu/YXRlLXNob3dpbmct/cmVkLXNlZWRzLmpw/Zw",
 	}
 
-	
 	// database.AddProducts(prd1, prd2, prd3, prd4, prd5)
 	pr.items = append(pr.items, &prd1)
 	pr.items = append(pr.items, &prd2)

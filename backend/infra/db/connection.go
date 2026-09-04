@@ -3,13 +3,13 @@ package db
 import (
 	"ecommerce/config"
 	"fmt"
-	"strconv"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"strconv"
 )
 
 func GetConnectionString(conf config.Config) string {
-	return "postgres://" + conf.UserName + ":" + conf.Password + "@" + conf.Host + ":" + strconv.Itoa(conf.Port) + "/" + conf.DbName + "?sslmode=disable"
+	return "postgres://" + conf.POSTGRES_USER + ":" + conf.POSTGRES_PASSWORD + "@" + conf.POSTGRES_HOST + ":" + strconv.Itoa(conf.POSTGRES_PORT) + "/" + conf.POSTGRES_DB + "?sslmode=disable"
 }
 
 func NewConnection(conf config.Config) (*sqlx.DB, error) {

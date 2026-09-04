@@ -1,6 +1,8 @@
 package repo
 
-import ("fmt")
+import (
+	"fmt"
+)
 
 type User struct {
 	ID          int    `json:"id"`
@@ -30,12 +32,12 @@ func NewUserRepo() UserRepo {
 	return repo
 }
 
-func (self userRepo) Add(user User) (*User, error) {
+func (self *userRepo) Add(user User) (*User, error) {
 	user.ID = len(self.items) + 1
 	self.items = append(self.items, &user)
 	return &user, nil
 }
-func (self userRepo) Get(id int) *User {
+func (self *userRepo) Get(id int) *User {
 	for idx := range self.items {
 		if self.items[idx].ID == id {
 			return self.items[idx]
@@ -43,7 +45,8 @@ func (self userRepo) Get(id int) *User {
 	}
 	return nil
 }
-func (self userRepo) GetByMail(email string) (*User, error) {
+func (self *userRepo) GetByMail(email string) (*User, error) {
+	fmt.Println(self.items, email)
 	for idx := range self.items {
 		if self.items[idx].Email == email {
 			return self.items[idx], nil
@@ -51,10 +54,10 @@ func (self userRepo) GetByMail(email string) (*User, error) {
 	}
 	return nil, fmt.Errorf("user with email %s not found", email)
 }
-func (self userRepo) List() []*User {
+func (self *userRepo) List() []*User {
 	return self.items
 }
-func (self userRepo) Delete(id int) error {
+func (self *userRepo) Delete(id int) error {
 	for idx := range self.items {
 		if self.items[idx].ID == id {
 			lastIdx := len(self.items) - 1
@@ -65,7 +68,7 @@ func (self userRepo) Delete(id int) error {
 	}
 	return fmt.Errorf("user with id %d not found", id)
 }
-func (self userRepo) Update(user User) (*User, error) {
+func (self *userRepo) Update(user User) (*User, error) {
 	for idx := range self.items {
 		if self.items[idx].ID == user.ID {
 			self.items[idx] = &user
@@ -84,5 +87,5 @@ func generateDefaultUsers(repo *userRepo) {
 		IsShopOwner: true,
 	}
 
-	repo.items = append(repo.items, &default_user1)
+	repo.Add(default_user1)
 }

@@ -28,9 +28,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user, err := h.userRepo.GetByMail(reqLogin.Email)
+	if err != nil {
+		http.Error(w, "user mail not matched", http.StatusBadRequest)
+		return
+	}
 	passwordMatched := user.Password == reqLogin.Password
-	if err != nil || !passwordMatched {
-		http.Error(w, "user mail or password not matched", http.StatusBadRequest)
+	if !passwordMatched {
+		http.Error(w, "user password not matched", http.StatusBadRequest)
 		return
 	}
 	payload := utils.Claims{Sub: user.ID, Email: user.Email, IsShopOwner: user.IsShopOwner}
