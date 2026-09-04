@@ -2,6 +2,15 @@ services:
   app:
     build:
       context: backend
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend
+          target: /app
+
+        - action: rebuild
+          path: ./backend/go.mod
+      
     env_file:
       - backend/.env
     ports:
