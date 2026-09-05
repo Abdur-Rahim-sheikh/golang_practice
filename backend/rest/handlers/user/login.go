@@ -27,16 +27,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Plz, give me valid data", http.StatusBadRequest)
 		return
 	}
-	user, err := h.userRepo.GetByMail(reqLogin.Email)
+	user, err := h.svc.Find(reqLogin.Email, reqLogin.Password)
 	if err != nil {
-		http.Error(w, "user mail not matched", http.StatusBadRequest)
+		http.Error(w, "user mail or password not matched", http.StatusBadRequest)
 		return
 	}
-	passwordMatched := user.Password == reqLogin.Password
-	if !passwordMatched {
-		http.Error(w, "user password not matched", http.StatusBadRequest)
-		return
-	}
+
 	payload := utils.Claims{Sub: user.ID, Email: user.Email, IsShopOwner: user.IsShopOwner}
 	token, err := utils.CreateJwt(h.middlewares.Conf.JwtSecret, payload)
 

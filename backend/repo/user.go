@@ -4,25 +4,13 @@ import (
 	"fmt"
 	"log"
 
+	"ecommerce/domain"
+	"ecommerce/user"
 	"github.com/jmoiron/sqlx"
 )
 
-type User struct {
-	ID          int    `json:"id"` //db:"id" just left out for test
-	FirstName   string `json:"first_name" db:"first_name"`
-	LastName    string `json:"last_name" db:"last_name"`
-	Email       string `json:"email" db:"email"`
-	Password    string `json:"password" db:"password"`
-	IsShopOwner bool   `json:"is_shop_owner" db:"is_shop_owner"`
-}
-
 type UserRepo interface {
-	Add(user User) (*User, error)
-	Get(id int) *User
-	GetByMail(email string) (*User, error)
-	List() []*User
-	Delete(id int) error
-	Update(user User) (*User, error)
+	user.UserRepo
 }
 
 type userRepo struct {
@@ -35,7 +23,7 @@ func NewUserRepo(dbCon *sqlx.DB) UserRepo {
 	return repo
 }
 
-func (self *userRepo) Add(user User) (*User, error) {
+func (self *userRepo) Add(user domain.User) (*domain.User, error) {
 	query := `
 		INSERT INTO users (first_name, last_name, email, password, is_shop_owner)
 		VALUES (:first_name, :last_name, :email, :password, :is_shop_owner)
@@ -56,8 +44,8 @@ func (self *userRepo) Add(user User) (*User, error) {
 	return &user, nil
 }
 
-func (self *userRepo) Get(id int) *User {
-	var user User
+func (self *userRepo) Get(id int) *domain.User {
+	var user domain.User
 	query := `SELECT first_name, last_name, email, password, is_shop_owner FROM users WHERE id = $1`
 	err := self.db.Get(&user, query, id)
 	if err != nil {
@@ -66,8 +54,8 @@ func (self *userRepo) Get(id int) *User {
 	return &user
 }
 
-func (self *userRepo) GetByMail(email string) (*User, error) {
-	var user User
+func (self *userRepo) GetByMail(email string) (*domain.User, error) {
+	var user domain.User
 	query := `SELECT first_name, last_name, email, password,is_shop_owner FROM users WHERE email = $1`
 	err := self.db.Get(&user, query, email)
 	if err != nil {
@@ -76,8 +64,8 @@ func (self *userRepo) GetByMail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (self *userRepo) List() []*User {
-	var users []*User
+func (self *userRepo) List() []*domain.User {
+	var users []*domain.User
 	query := `SELECT first_name, last_name, email, password, is_shop_owner FROM users`
 	err := self.db.Select(&users, query)
 	if err != nil {
@@ -103,7 +91,7 @@ func (self *userRepo) Delete(id int) error {
 	return nil
 }
 
-func (self *userRepo) Update(user User) (*User, error) {
+func (self *userRepo) Update(user domain.User) (*domain.User, error) {
 	query := `
 		UPDATE users SET
 			first_name = :first_name,

@@ -1,8 +1,10 @@
 package product
 
-import ("ecommerce/rest/middlewares"
-"ecommerce/repo"
+import (
+	"ecommerce/repo"
+	"ecommerce/rest/middlewares"
 )
+
 type Handler struct {
 	middlewares *middlewares.Middlewares
 	productRepo repo.ProductRepo

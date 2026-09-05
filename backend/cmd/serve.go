@@ -5,9 +5,10 @@ import (
 	"ecommerce/infra/database"
 	"ecommerce/repo"
 	"ecommerce/rest"
-	"ecommerce/rest/handlers/product"
-	"ecommerce/rest/handlers/user"
+	productHandler "ecommerce/rest/handlers/product"
+	userHandler "ecommerce/rest/handlers/user"
 	"ecommerce/rest/middlewares"
+	"ecommerce/user"
 	"fmt"
 )
 
@@ -25,10 +26,14 @@ func Serve() {
 		panic(err)
 	}
 	middlewares := middlewares.NewMiddlewares(conf)
+	// repos
 	productRepo := repo.NewProductRepo(db)
 	userRepo := repo.NewUserRepo(db)
-	productHandler := product.NewHandler(middlewares, productRepo)
-	userHandler := user.NewHandler(middlewares, userRepo)
+
+	// domains
+	userService := user.NewService(userRepo)
+	productHandler := productHandler.NewHandler(middlewares, productRepo)
+	userHandler := userHandler.NewHandler(middlewares, userService)
 	server := rest.NewServer(productHandler, userHandler)
 	server.Start(conf)
 }
