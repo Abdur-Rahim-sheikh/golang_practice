@@ -2,15 +2,19 @@ package repo
 
 import (
 	"fmt"
+	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Product struct {
-	ID          int     `json:"id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	ImgUrl      string  `json:"imageUrl"`
+	ID          int     `json:"id" db:"id"`
+	Title       string  `json:"title" db:"title"`
+	Description string  `json:"description" db:"description"`
+	Price       float64 `json:"price" db:"price"`
+	ImgUrl      string  `json:"imageUrl" db:"img_url"`
 }
+
 type ProductRepo interface {
 	Add(product Product) (*Product, error)
 	Get(id int) *Product
@@ -20,104 +24,102 @@ type ProductRepo interface {
 }
 
 type productRepo struct {
-	items []*Product
+	db *sqlx.DB
 }
 
-func NewProductRepo() ProductRepo {
-	repo := &productRepo{}
-	generateDefaultProducts(repo)
+func NewProductRepo(db *sqlx.DB) ProductRepo {
+	repo := &productRepo{db: db}
+	// generateDefaultProducts(repo)
 	return repo
 }
 
 func (self *productRepo) Add(product Product) (*Product, error) {
-	product.ID = len(self.items) + 1
-	self.items = append(self.items, &product)
+	query := `
+		INSERT INTO products (title, description, price, img_url)
+		VALUES (:title, :description, :price, :img_url)
+		RETURNING id
+	`
+	rows, err := self.db.NamedQuery(query, product)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productID int
+	if rows.Next() {
+		rows.Scan(&productID)
+	}
+	product.ID = productID
 	return &product, nil
 }
+
 func (self *productRepo) Get(id int) *Product {
-	for idx := range self.items {
-		if self.items[idx].ID == id {
-			return self.items[idx]
-		}
+	var product Product
+	query := `SELECT id, title, description, price, img_url FROM products WHERE id = $1`
+	err := self.db.Get(&product, query, id)
+	if err != nil {
+		return nil
+	}
+	return &product
+}
+
+func (self *productRepo) List() []*Product {
+	var products []*Product
+	query := `SELECT id, title, description, price, img_url FROM products`
+	err := self.db.Select(&products, query)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	return products
+}
+
+func (self *productRepo) Delete(id int) error {
+	query := `DELETE FROM products WHERE id = $1`
+	result, err := self.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return fmt.Errorf("product with id %d not found", id)
 	}
 	return nil
+}
 
-}
-func (self *productRepo) List() []*Product {
-	return self.items
-}
-func (self *productRepo) Delete(id int) error {
-	for idx := range self.items {
-		if self.items[idx].ID == id {
-			lastIdx := len(self.items) - 1
-			self.items[idx] = self.items[lastIdx]
-			self.items = self.items[:lastIdx]
-			return nil
-		}
-	}
-	return fmt.Errorf("product with id %d not found", id)
-
-}
 func (self *productRepo) Update(product Product) (*Product, error) {
-	for idx := range self.items {
-		if self.items[idx].ID == product.ID {
-			self.items[idx] = &product
-			return &product, nil
-		}
+	query := `
+		UPDATE products SET
+			title = :title,
+			description = :description,
+			price = :price,
+			img_url = :img_url
+		WHERE id = :id
+	`
+	result, err := self.db.NamedExec(query, product)
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("product with id %d not found", product.ID)
-
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if affected == 0 {
+		return nil, fmt.Errorf("product with id %d not found", product.ID)
+	}
+	return &product, nil
 }
 
-func generateDefaultProducts(pr *productRepo) {
-	prd1 := Product{
-		ID:          1,
-		Title:       "Orange",
-		Description: "Orange is orange, I love orange",
-		Price:       100,
-		ImgUrl:      "https://imgs.search.brave.com/pteG9T1-Pgd47tAC6az-lh1OjLB1aoxqpWUhlU37z38/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/cmQuY29tL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDE3LzEyLzAx/X29yYW5nZXNfRmlu/YWxseSVFMiU4MCU5/NEhlcmUlRTIlODAl/OTlzLVdoaWNoLSVF/MiU4MCU5Q09yYW5n/ZSVFMiU4MCU5RC1D/YW1lLUZpcnN0LXRo/ZS1Db2xvci1vci10/aGUtRnJ1aXRfNjkx/MDY0MzUzX0x1Y2t5/LUJ1c2luZXNzLmpw/Zz9maXQ9NjQwLDQy/Nw",
-	}
-	prd2 := Product{
-		ID:          2,
-		Title:       "Apple",
-		Description: "Apple is green",
-		Price:       100,
-		ImgUrl:      "https://imgs.search.brave.com/k64M2mdcB9vnknWz3p_Ovw1zKux-E81TzEBt-UVDJXs/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE1/MjA2Nzc3Mi9waG90/by9kZWxpY2lvdXMt/cmVkLWFwcGxlcy1v/bi1yZXRhaWwtZGlz/cGxheS1hdC1zdXBl/cm1hcmtldC5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9enZB/ckJKVmZtM1lyQlhO/ZHN4YWFXU2VMVEJU/RmVhM0VTOTg1bVhR/QXFtaz0",
-	}
-	prd3 := Product{
-		ID:          3,
-		Title:       "Banana",
-		Description: "Banana is Green",
-		Price:       100,
-		ImgUrl:      "https://imgs.search.brave.com/Bh203dGWHpOJQYtYaG77ohn8ZCpH8xt0veS9QVN1FMg/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMjE2/ODc1MjgxNi9waG90/by9jbG9zZS11cC1v/Zi1iYW5hbmEtdHJl/ZS5qcGc_cz02MTJ4/NjEyJnc9MCZrPTIw/JmM9aXBHNWRNLUxk/R0ZEY0hta1ZOSjlJ/LUp2X2ZvdDNKY2Vz/Q0V6MlZnUjVRTT0",
-	}
-	prd4 := Product{
-		ID:          4,
-		Title:       "Guava",
-		Description: "Guava is green",
-		Price:       100,
-		ImgUrl:      "https://imgs.search.brave.com/VosOYMkoCA43ivdH_eD_232M3utY3zTMhDCCUHXR-hU/rs:fit:0:180:1:0/g:ce/aHR0cHM6Ly9jZG4u/bW9zLmNtcy5mdXR1/cmVjZG4ubmV0L1FX/SlplaWo3cGlwbnNp/YTc1ZEdOdlgtMjMw/LTgwLmpwZw",
-	}
-	prd5 := Product{
-		ID:          5,
-		Title:       "Pomegranate",
-		Description: "Pomegranate is red",
-		Price:       100,
-		ImgUrl:      "https://imgs.search.brave.com/lr54-BpcmvudejK69bknqjndUkfJQ0VOImgtugxbems/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bnV0cml0aW9uYWR2/YW5jZS5jb20vd3At/Y29udGVudC91cGxv/YWRzLzIwMjMvMDgv/Y3V0LXBvbWVncmFu/YXRlLXNob3dpbmct/cmVkLXNlZWRzLmpw/Zw",
-	}
-
-	// database.AddProducts(prd1, prd2, prd3, prd4, prd5)
-	pr.items = append(pr.items, &prd1)
-	pr.items = append(pr.items, &prd2)
-	pr.items = append(pr.items, &prd3)
-	pr.items = append(pr.items, &prd4)
-	pr.items = append(pr.items, &prd5)
-	// default_user := User{
-	// 	FirstName:   "Pansy",
-	// 	LastName:    "Schaefer",
-	// 	Email:       "test@gmail.com",
-	// 	Password:    "test",
-	// 	IsShopOwner: true,
-	// }
-	// default_user.Add()
-}
+// func generateDefaultProducts(repo *productRepo) {
+// 	prd1 := Product{
+// 		Title:       "Orange",
+// 		Description: "Orange is orange, I love orange",
+// 		Price:       100,
+// 		ImgUrl:      "https://example.com/orange.jpg",
+// 	}
+// 	repo.Add(prd1)
+// }

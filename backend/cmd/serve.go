@@ -18,7 +18,7 @@ func Serve() {
 	}
 	defer db.Close()
 	middlewares := middlewares.NewMiddlewares(conf)
-	productRepo := repo.NewProductRepo()
+	productRepo := repo.NewProductRepo(db)
 	userRepo := repo.NewUserRepo(db)
 	productHandler := product.NewHandler(middlewares, productRepo)
 	userHandler := user.NewHandler(middlewares, userRepo)
