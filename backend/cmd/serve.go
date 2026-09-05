@@ -12,7 +12,8 @@ import (
 
 func Serve() {
 	conf := config.GetConfig()
-	db, err := db.NewConnection(*conf)
+	dbconf := config.GetDBConfig()
+	db, err := db.NewConnection(*dbconf)
 	if err != nil {
 		panic(err)
 	}
