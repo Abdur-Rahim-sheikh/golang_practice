@@ -32,6 +32,8 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=test@abc.com
       - PGADMIN_DEFAULT_PASSWORD=test
+      - GUNICORN_ACCESS_LOGFILE=/dev/null   # kills the request-log spam
+      - PGADMIN_CONFIG_CONSOLE_LOG_LEVEL=30 # optional: app 
     
     ports:
       - 8080:80

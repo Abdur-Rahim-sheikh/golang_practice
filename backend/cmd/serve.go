@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"ecommerce/config"
+	"ecommerce/infra/db"
 	"ecommerce/repo"
 	"ecommerce/rest"
 	"ecommerce/rest/handlers/product"
 	"ecommerce/rest/handlers/user"
 	"ecommerce/rest/middlewares"
-	"ecommerce/infra/db"
 )
 
 func Serve() {
@@ -19,7 +19,7 @@ func Serve() {
 	defer db.Close()
 	middlewares := middlewares.NewMiddlewares(conf)
 	productRepo := repo.NewProductRepo()
-	userRepo := repo.NewUserRepo()
+	userRepo := repo.NewUserRepo(db)
 	productHandler := product.NewHandler(middlewares, productRepo)
 	userHandler := user.NewHandler(middlewares, userRepo)
 	server := rest.NewServer(productHandler, userHandler)
