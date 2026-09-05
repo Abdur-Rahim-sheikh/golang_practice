@@ -1,3 +1,15 @@
+## At this point
+Now we have the need to use `database` and `pg-admin` to monitor the database.
+
+So this is the best time to dockerize them.
+You just need to run 
+```bash
+docker compose up --watch
+```
+So you can run and modify code without issue.
+You also need not to restart the `main.go` file as I have set to auto restart the project of code changes.
+
+*I have intentionally left out the client side, as from now we just use the backend and `postman` to test it out.*
 ## Project running
 
 ### Client
@@ -12,3 +24,5 @@ You mostly need to checkout of for `client/src/pages/api.js` where all the backe
 cd backend
 go run main.go
 ```
+
+
