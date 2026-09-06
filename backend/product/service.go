@@ -12,18 +12,18 @@ func NewService(productRepo ProductRepo) Service {
 	return &service{productRepo: productRepo}
 }
 
-func (self *service) Add(product domain.Product) (*domain.Product, error) {
-	return self.productRepo.Add(product)
+func (svc *service) Add(product domain.Product) (*domain.Product, error) {
+	return svc.productRepo.Add(product)
 }
-func (self *service) Get(id int) *domain.Product {
-	return self.productRepo.Get(id)
+func (svc *service) Get(id int) *domain.Product {
+	return svc.productRepo.Get(id)
 }
-func (self *service) List() []*domain.Product {
-	return self.productRepo.List()
+func (svc *service) List() []*domain.Product {
+	return svc.productRepo.List()
 }
-func (self *service) Delete(id int) error {
-	return self.productRepo.Delete(id)
+func (svc *service) Delete(id int) error {
+	return svc.productRepo.Delete(id)
 }
-func (self *service) Update(product domain.Product) (*domain.Product, error) {
-	return self.productRepo.Update(product)
+func (svc *service) Update(product domain.Product) (*domain.Product, error) {
+	return svc.productRepo.Update(product)
 }
