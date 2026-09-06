@@ -52,7 +52,7 @@ func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	err = h.svc.Delete(id)
 	if err != nil {
 		http.Error(w, "Product with this product id not found", 400)
-
+		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
@@ -69,7 +69,7 @@ func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	item := h.svc.Get(id)
 	if item == nil {
 		http.Error(w, "Product with this product id not found", 400)
-
+		return
 	}
 	utils.SendData(w, http.StatusOK, item)
 }
@@ -99,7 +99,7 @@ func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		http.Error(w, "Product with this product id not found", 400)
-
+		return
 	}
 	utils.SendData(w, http.StatusOK, item)
 }

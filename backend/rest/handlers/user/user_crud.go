@@ -9,7 +9,8 @@ import (
 )
 
 type RequestUser struct {
-	Name        string `json:"name"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
 	IsShopOwner bool   `json:"is_shop_owner"`
@@ -29,13 +30,15 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	created_user, err := h.svc.Add(domain.User{
-		FirstName:   newUser.Name,
+		FirstName:   newUser.FirstName,
+		LastName:    newUser.LastName,
 		Email:       newUser.Email,
 		Password:    newUser.Password,
 		IsShopOwner: newUser.IsShopOwner,
 	})
 	if err != nil {
 		utils.SendError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	utils.SendData(w, http.StatusCreated, created_user)
