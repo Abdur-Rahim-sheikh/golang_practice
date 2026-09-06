@@ -1,21 +1,23 @@
 package product
 
 import (
+	"ecommerce/domain"
 	"ecommerce/utils"
-	"ecommerce/repo"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 )
+
 type RequestProduct struct {
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
 	ImageUrl    string  `json:"imageUrl"`
 	Price       float64 `json:"price"`
 }
+
 func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
-	utils.SendData(w,http.StatusOK, h.productRepo.List())
+	utils.SendData(w, http.StatusOK, h.svc.List())
 }
 
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
@@ -29,15 +31,14 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Plz, give me valid json", 400)
 		return
 	}
-	
-	h.productRepo.Add(repo.Product{
-		ID: len(h.productRepo.List())+1,
-		Title: newProduct.Title,
+
+	h.svc.Add(domain.Product{
+		Title:       newProduct.Title,
 		Description: newProduct.Description,
-		ImgUrl: newProduct.ImageUrl,
-		Price: newProduct.Price,
+		ImgUrl:      newProduct.ImageUrl,
+		Price:       newProduct.Price,
 	})
-	utils.SendData(w, http.StatusAccepted, h.productRepo.List())
+	utils.SendData(w, http.StatusAccepted, h.svc.List())
 }
 
 func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +49,7 @@ func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.productRepo.Delete(id)
+	err = h.svc.Delete(id)
 	if err != nil {
 		http.Error(w, "Product with this product id not found", 400)
 
@@ -65,7 +66,7 @@ func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item := h.productRepo.Get(id)
+	item := h.svc.Get(id)
 	if item == nil {
 		http.Error(w, "Product with this product id not found", 400)
 
@@ -89,12 +90,12 @@ func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Plz, give me valid json", 400)
 		return
 	}
-	item, err := h.productRepo.Update(repo.Product{
-		ID: id,
-		Title: newProduct.Title,
+	item, err := h.svc.Update(domain.Product{
+		ID:          id,
+		Title:       newProduct.Title,
 		Description: newProduct.Description,
-		ImgUrl: newProduct.ImageUrl,
-		Price: newProduct.Price,
+		ImgUrl:      newProduct.ImageUrl,
+		Price:       newProduct.Price,
 	})
 	if err != nil {
 		http.Error(w, "Product with this product id not found", 400)

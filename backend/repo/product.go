@@ -4,36 +4,22 @@ import (
 	"fmt"
 	"log"
 
+	"ecommerce/domain"
+	"ecommerce/product"
 	"github.com/jmoiron/sqlx"
 )
-
-type Product struct {
-	ID          int     `json:"id" db:"id"`
-	Title       string  `json:"title" db:"title"`
-	Description string  `json:"description" db:"description"`
-	Price       float64 `json:"price" db:"price"`
-	ImgUrl      string  `json:"imageUrl" db:"img_url"`
-}
-
-type ProductRepo interface {
-	Add(product Product) (*Product, error)
-	Get(id int) *Product
-	List() []*Product
-	Delete(id int) error
-	Update(product Product) (*Product, error)
-}
 
 type productRepo struct {
 	db *sqlx.DB
 }
 
-func NewProductRepo(db *sqlx.DB) ProductRepo {
+func NewProductRepo(db *sqlx.DB) product.ProductRepo {
 	repo := &productRepo{db: db}
 	// generateDefaultProducts(repo)
 	return repo
 }
 
-func (self *productRepo) Add(product Product) (*Product, error) {
+func (self *productRepo) Add(product domain.Product) (*domain.Product, error) {
 	query := `
 		INSERT INTO products (title, description, price, img_url)
 		VALUES (:title, :description, :price, :img_url)
@@ -54,8 +40,8 @@ func (self *productRepo) Add(product Product) (*Product, error) {
 	return &product, nil
 }
 
-func (self *productRepo) Get(id int) *Product {
-	var product Product
+func (self *productRepo) Get(id int) *domain.Product {
+	var product domain.Product
 	query := `SELECT id, title, description, price, img_url FROM products WHERE id = $1`
 	err := self.db.Get(&product, query, id)
 	if err != nil {
@@ -64,8 +50,8 @@ func (self *productRepo) Get(id int) *Product {
 	return &product
 }
 
-func (self *productRepo) List() []*Product {
-	var products []*Product
+func (self *productRepo) List() []*domain.Product {
+	var products []*domain.Product
 	query := `SELECT id, title, description, price, img_url FROM products`
 	err := self.db.Select(&products, query)
 	if err != nil {
@@ -91,7 +77,7 @@ func (self *productRepo) Delete(id int) error {
 	return nil
 }
 
-func (self *productRepo) Update(product Product) (*Product, error) {
+func (self *productRepo) Update(product domain.Product) (*domain.Product, error) {
 	query := `
 		UPDATE products SET
 			title = :title,
