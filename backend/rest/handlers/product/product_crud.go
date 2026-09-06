@@ -17,7 +17,19 @@ type RequestProduct struct {
 }
 
 func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
-	utils.SendData(w, http.StatusOK, h.svc.List())
+	queries := r.URL.Query()
+	pageStr := queries.Get("page")
+	limitStr := queries.Get("limit")
+	page, _ := strconv.ParseInt(pageStr, 10, 32)
+	limit, _ := strconv.ParseInt(limitStr, 10, 32)
+
+	// if page == 0 {
+	// 	page = 1
+	// }
+	if limit == 0 {
+		limit = 10
+	}
+	utils.SendData(w, http.StatusOK, h.svc.List(page, limit))
 }
 
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
@@ -32,13 +44,13 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.svc.Add(domain.Product{
+	product, err := h.svc.Add(domain.Product{
 		Title:       newProduct.Title,
 		Description: newProduct.Description,
 		ImgUrl:      newProduct.ImageUrl,
 		Price:       newProduct.Price,
 	})
-	utils.SendData(w, http.StatusAccepted, h.svc.List())
+	utils.SendData(w, http.StatusCreated, product)
 }
 
 func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {

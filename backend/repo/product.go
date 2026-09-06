@@ -50,10 +50,10 @@ func (self *productRepo) Get(id int) *domain.Product {
 	return &product
 }
 
-func (self *productRepo) List() []*domain.Product {
+func (self *productRepo) List(page, limit int64) []*domain.Product {
 	var products []*domain.Product
-	query := `SELECT id, title, description, price, img_url FROM products`
-	err := self.db.Select(&products, query)
+	query := `SELECT id, title, description, price, img_url FROM products limit $1 offset $2`
+	err := self.db.Select(&products, query, limit, page*limit)
 	if err != nil {
 		log.Println(err)
 		return nil
