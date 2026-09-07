@@ -16,6 +16,14 @@ type RequestProduct struct {
 	Price       float64 `json:"price"`
 }
 
+type Pagination struct {
+	Data       []*domain.Product `json:"data"`
+	Limit      int64             `json:"limit"`
+	Page       int64             `json:"page"`
+	TotalItems int64             `json:"total_items"`
+	TotalPagse int64             `json:"total_pages"`
+}
+
 func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	queries := r.URL.Query()
 	pageStr := queries.Get("page")
@@ -23,13 +31,25 @@ func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	page, _ := strconv.ParseInt(pageStr, 10, 32)
 	limit, _ := strconv.ParseInt(limitStr, 10, 32)
 
-	// if page == 0 {
-	// 	page = 1
-	// }
+	// if error at page, it will have a default zero value,
+	// and this is what we want at default case
 	if limit == 0 {
 		limit = 10
 	}
-	utils.SendData(w, http.StatusOK, h.svc.List(page, limit))
+	product_list := h.svc.List(page, limit)
+	cnt, err := h.svc.Count()
+	if err != nil {
+		utils.SendError(w, http.StatusInternalServerError, "Internal server error")
+		return
+	}
+	paginated_data := Pagination{
+		Data:       product_list,
+		Page:       page,
+		Limit:      limit,
+		TotalItems: cnt,
+		TotalPagse: cnt / limit,
+	}
+	utils.SendData(w, http.StatusOK, paginated_data)
 }
 
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {

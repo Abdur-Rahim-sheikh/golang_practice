@@ -21,6 +21,9 @@ func (svc *service) Get(id int) *domain.Product {
 func (svc *service) List(page, limit int64) []*domain.Product {
 	return svc.productRepo.List(page, limit)
 }
+func (svc *service) Count() (int64, error) {
+	return svc.productRepo.Count()
+}
 func (svc *service) Delete(id int) error {
 	return svc.productRepo.Delete(id)
 }

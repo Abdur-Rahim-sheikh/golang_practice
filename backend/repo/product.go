@@ -61,6 +61,16 @@ func (self *productRepo) List(page, limit int64) []*domain.Product {
 	return products
 }
 
+func (self *productRepo) Count() (int64, error) {
+	var total int64
+	query := `SELECT COUNT(*) FROM products`
+	err := self.db.Get(&total, query)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	return total, err
+}
 func (self *productRepo) Delete(id int) error {
 	query := `DELETE FROM products WHERE id = $1`
 	result, err := self.db.Exec(query, id)
