@@ -16,14 +16,6 @@ type RequestProduct struct {
 	Price       float64 `json:"price"`
 }
 
-type Pagination struct {
-	Data       []*domain.Product `json:"data"`
-	Limit      int64             `json:"limit"`
-	Page       int64             `json:"page"`
-	TotalItems int64             `json:"total_items"`
-	TotalPagse int64             `json:"total_pages"`
-}
-
 func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	queries := r.URL.Query()
 	pageStr := queries.Get("page")
@@ -42,14 +34,8 @@ func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		utils.SendError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
-	paginated_data := Pagination{
-		Data:       product_list,
-		Page:       page,
-		Limit:      limit,
-		TotalItems: cnt,
-		TotalPagse: cnt / limit,
-	}
-	utils.SendData(w, http.StatusOK, paginated_data)
+
+	utils.SendPage(w, product_list, page, limit, cnt)
 }
 
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
