@@ -3,29 +3,32 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 // import (
 // 	"ecommerce/cmd"
 // )
 
-var wg sync.WaitGroup
-
-var cnt int64
-var mu sync.Mutex
-
 func main() {
 	// cmd.Serve()
-	for i := 1; i <= 1000; i++ {
-		wg.Go(func() {
-			mu.Lock()
-			a := cnt
-			a = a + 1
-			cnt = a
-			mu.Unlock()
-		})
-	}
+	ch := make(chan int)
+	var wg sync.WaitGroup
+	wg.Go(func() {
+		fmt.Println("sending")
+		// This is unbuffered, so it sleeps until someone receives it.
+		ch <- 1
+
+		fmt.Println("sent")
+	})
+	wg.Go(func() {
+		fmt.Println("receiving")
+		time.Sleep(500 * time.Millisecond) //to prove sender still waiting for someone to receive
+		val := <-ch
+		fmt.Println("Received", val)
+
+	})
 
 	wg.Wait()
-	fmt.Println("cnt: ", cnt)
+	fmt.Println("Mother goroutine Ends")
 }
