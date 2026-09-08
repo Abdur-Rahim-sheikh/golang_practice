@@ -25,17 +25,28 @@ func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 
 	// if error at page, it will have a default zero value,
 	// and this is what we want at default case
+
 	if limit == 0 {
 		limit = 10
 	}
-	product_list := h.svc.List(page, limit)
-	cnt, err := h.svc.Count()
-	if err != nil {
-		utils.SendError(w, http.StatusInternalServerError, "Internal server error")
-		return
-	}
+	ch := make(chan int64)
+	chPrd := make(chan []*domain.Product)
+	go func() {
+		products := h.svc.List(page, limit)
+		chPrd <- products
 
-	utils.SendPage(w, product_list, page, limit, cnt)
+	}()
+	go func() {
+		cnt, _ := h.svc.Count()
+		// we are intentionally omitting error, as that should
+		// be handled either via struct return in channel
+		// or via errgroup.WithContext
+		ch <- cnt
+	}()
+	productList := <-chPrd
+	cnt := <-ch
+
+	utils.SendPage(w, productList, page, limit, cnt)
 }
 
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
