@@ -1,4 +1,9 @@
 ## At this point
+Instead of testing go-routine in main logic we test it seperate at `main.go` so we get full flexibility.
+
+And this part can be simply tested via `go run main.go` from `backend` repo.
+
+## Database
 Now we have the need to use `database` and `pg-admin` to monitor the database.
 
 So this is the best time to dockerize them.
